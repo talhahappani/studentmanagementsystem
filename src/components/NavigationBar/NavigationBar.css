@@ -46,3 +46,20 @@ nav div i {
     font-size: 1.2rem;
     cursor: pointer;
 }
+
+.logout{
+    padding: 3px;
+    outline: none !important;
+    border-radius: 5px;
+    background-color: #EEF0E5;
+    color: #000;
+    border: 2px solid #EEF0E5;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.99rem;
+    transition: 0.3s linear;
+}
+
+.logout:hover{
+    opacity: 0.8;
+}
