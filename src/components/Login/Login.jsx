@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./Login.css";
 import Axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
 
 
-const Login = ( ) => {
+const Login = ({auth, setAuth}) => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [loginStatus, setLoginStatus] = useState("");
+
+    // const [auth, setAuth] = useState(false);
+    const [message, setMessage] = useState("");
+
     const navigate = useNavigate();
     Axios.defaults.withCredentials = true;
 
 
-    const login = () => {
+    const login = (e) => {
+        e.preventDefault();
         Axios.post("http://localhost:3001/login", {
             user: username,
             password: password
         })
         .then((response) => {
             console.log(response);
+            setAuth(true);
             navigate("/");
         })
         .catch((error) => {
@@ -28,22 +33,31 @@ const Login = ( ) => {
         });
     }
     
-    useEffect(() => {
-        Axios.get("http://localhost:3001/login").then(response => {
-            console.log(response.data.loggedIn);
-            if(response.data.loggedIn == true){
-                setLoginStatus(response.data.user[0].username);
-            }
-        })
-    }, [loginStatus]);
+
+    // useEffect(() => {
+    //   Axios.get("http://localhost:3001").then((res) => {
+    //     if (res.data.Status === "Success") {
+    //       setAuth(true);
+    //     } else {
+    //       setMessage(res.data.Message);
+    //       setAuth(false);
+    //     }
+    //   });
+    // }, [setAuth]);
+    
     return (
         <div className="login">
             <h1>Login</h1>
-            <form action="">
-                <input type="text" placeholder="Username" onChange={(e) => {setUsername(e.target.value);}} />
-                <input type="password" placeholder="Password" onChange={(e) => {setPassword(e.target.value);}}/>
-                <button type="button" onClick={login}>Login</button>
-            </form>
+            {
+                !auth ?
+                    <form onSubmit={login}>
+                    <input type="text" placeholder="Username" onChange={(e) => {setUsername(e.target.value);}} />
+                    <input type="password" placeholder="Password" onChange={(e) => {setPassword(e.target.value);}}/>
+                    <button type="submit">Login</button>
+                </form>
+                :
+                <h2>You are alreaddy logged in.</h2>
+            } 
         </div>
     )
 }

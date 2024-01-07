@@ -7,6 +7,7 @@ const saltRounds = 10;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
@@ -52,12 +53,32 @@ app.post('/register', async (req, res) => {
     }
 });
 
-app.get("/login", (req, res) => {
-    if(req.session.user){
-        res.send({loggedIn: true, user: req.session.user})
+// app.get("/login", (req, res) => {
+//     if(req.session.user){
+//         res.send({loggedIn: true, user: req.session.user})
+//     } else {
+//         res.send({loggedIn: false});
+//     }
+// });
+
+const verifyUser = (req, res, next) => {
+    const token = req.cookies.token;
+    if(!token){
+        return res.json({Message: "Not authorized."})
     } else {
-        res.send({loggedIn: false});
+        jwt.verify(token, "secretkey", (err, decoded) => {
+            if(err){
+                return res.json({Message: "Auth error."})
+            } else {
+                req.name = decoded.name;
+                next();
+            }
+        })
     }
+}
+
+app.get("/auth", verifyUser, (req,res) => {
+    return res.json({Status: "Success", name: req.name})
 });
 
 app.post('/login', async (req, res) => {
@@ -69,17 +90,17 @@ app.post('/login', async (req, res) => {
         const result = await queryAsync("SELECT * FROM usertable WHERE user = ?;", user);
         
 
-        // Check if there is at least one matching user
         if (result.length > 0) {
             const hashedPassword = result[0].password;
             const passwordMatch = await bcrypt.compare(password, hashedPassword)
             if (passwordMatch) {
-                // Passwords match, login successful
-                req.session.user = result;
-                console.log(req.session.user);
-                res.send({ message: "Login successful", user: result[0] });
+                // req.session.user = result; // session
+                // console.log(req.session.user);
+                const name = result[0];
+                const token = jwt.sign({name}, "secretkey", {expiresIn: "1d"} );
+                res.cookie('token', token);
+                res.send({ Status: "Success", user: result[0] });
             } else {
-                // Wrong password
                 res.status(401).send({ message: "Wrong username/password combination" });
             }
         } else {
@@ -91,13 +112,29 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.post("/logout", (req,res) => {
-    req.session.destroy((err) => {
+// app.post("/logout", (req,res) => {
+//     req.session.destroy((err) => {
+//         if(err) {
+//             console.error("Logout failed:", err);
+//             res.status(500).json({ success: false, message: "Logout failed" });
+//         }
+//     })
+// })
+
+app.get("/", (req,res) => {
+    const sql = "SELECT * FROM crud"
+    db.query(sql, (err, data) => {
         if(err) {
-            console.error("Logout failed:", err);
-            res.status(500).json({ success: false, message: "Logout failed" });
+            return res.json("Error")
         }
+
+        return res.json(data);
     })
+})
+
+app.get("/logout", (req,res) => {
+    res.clearCookie('token');
+    return res.json({Status: "Success"});
 })
 
 
