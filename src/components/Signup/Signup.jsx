@@ -28,7 +28,7 @@ const Signup = () => {
 
     const[usernameReg, setUserNameReg] = useState('');
     const[passwordReg, setPasswordReg] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const[confirmPassword, setConfirmPassword] = useState('');
     const[userType, setUserType] = useState('Student');
 
 

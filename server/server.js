@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
@@ -112,14 +112,60 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// app.post("/logout", (req,res) => {
-//     req.session.destroy((err) => {
-//         if(err) {
-//             console.error("Logout failed:", err);
-//             res.status(500).json({ success: false, message: "Logout failed" });
-//         }
-//     })
-// })
+app.post("/create", (req, res) => {
+    const sql = "INSERT INTO crud (`Name`, `Surname`, `Age`, `Department`, `Score`) VALUES (?, ?, ?, ?, ?)";
+    const values = [
+        req.body.name,
+        req.body.surname,
+        req.body.age,
+        req.body.department,
+        req.body.score
+    ];
+
+    db.query(sql, values, (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+        return res.json(data);
+    });
+});
+
+app.put("/update/:id", (req, res) => {
+        const sql = "UPDATE crud SET `Name` = ?, `Surname` = ?, `Age` = ?, `Department` = ?, `Score` = ? WHERE ID = ?";
+        const values = [
+        req.body.name,
+        req.body.surname,
+        req.body.age,
+        req.body.department,
+        req.body.score
+    ];
+    const id = req.params.id;
+
+    db.query(sql, [...values, id], (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+        return res.json(data);
+    });
+});
+
+app.delete("/delete/:id", (req, res) => {
+    const sql = "DELETE FROM crud WHERE id = ?";
+    const id = req.params.id;
+
+db.query(sql, [id], (err, data) => {
+    if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+    return res.json(data);
+});
+});
+
+
+
 
 app.get("/", (req,res) => {
     const sql = "SELECT * FROM crud"
