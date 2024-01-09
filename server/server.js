@@ -53,13 +53,6 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// app.get("/login", (req, res) => {
-//     if(req.session.user){
-//         res.send({loggedIn: true, user: req.session.user})
-//     } else {
-//         res.send({loggedIn: false});
-//     }
-// });
 
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
@@ -94,8 +87,6 @@ app.post('/login', async (req, res) => {
             const hashedPassword = result[0].password;
             const passwordMatch = await bcrypt.compare(password, hashedPassword)
             if (passwordMatch) {
-                // req.session.user = result; // session
-                // console.log(req.session.user);
                 const name = result[0];
                 const token = jwt.sign({name}, "secretkey", {expiresIn: "1d"} );
                 res.cookie('token', token);
@@ -164,8 +155,19 @@ db.query(sql, [id], (err, data) => {
 });
 });
 
-
-
+app.post('/filter', async (req, res) => {
+    const { name, surname, age, department, score } = req.body;
+    const sql = 'SELECT * FROM crud WHERE Name LIKE ? AND Surname LIKE ? AND Age LIKE ? AND Department LIKE ? AND Score LIKE ?';
+    const values = [`%${name}%`, `%${surname}%`, `%${age}%`, `%${department}%`, `%${score}%`];
+  
+    try {
+      const result = await queryAsync(sql, values);
+      res.json(result);
+    } catch (error) {
+      console.error('Filtering error:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
 
 app.get("/", (req,res) => {
     const sql = "SELECT * FROM crud"

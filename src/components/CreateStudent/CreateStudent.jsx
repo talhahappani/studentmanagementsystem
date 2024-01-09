@@ -21,7 +21,7 @@ function CreateStudent() {
             return;
         }
         Axios.post('http://localhost:3001/create', {name, surname, age: parsedAge, department, score: parsedScore}).then(res => {
-            console.log(res);
+            // console.log(res);
             navigate('/');
         }).catch(err => console.log(err));
     }

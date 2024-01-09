@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import "./Login.css";
 import Axios from 'axios';
 import { useNavigate } from "react-router-dom";
@@ -9,9 +9,6 @@ const Login = ({auth, setAuth}) => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
-    // const [auth, setAuth] = useState(false);
-    const [message, setMessage] = useState("");
 
     const navigate = useNavigate();
     Axios.defaults.withCredentials = true;
@@ -32,19 +29,7 @@ const Login = ({auth, setAuth}) => {
             window.alert(error.response.data.message);
         });
     }
-    
 
-    // useEffect(() => {
-    //   Axios.get("http://localhost:3001").then((res) => {
-    //     if (res.data.Status === "Success") {
-    //       setAuth(true);
-    //     } else {
-    //       setMessage(res.data.Message);
-    //       setAuth(false);
-    //     }
-    //   });
-    // }, [setAuth]);
-    
     return (
         <div className="login">
             <h1>Login</h1>

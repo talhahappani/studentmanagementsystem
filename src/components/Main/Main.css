@@ -1,0 +1,12 @@
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.filter-drawer {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    width: 250px;
+    margin: 16px;
+  }
